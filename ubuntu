@@ -1,0 +1,65 @@
+import pyxel
+import random
+
+class Enemy:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def update(self):
+        self.y += 1
+
+    def draw(self):
+        pyxel.blt(self.x,self.y,0,0,32,60,35, 0)
+
+class SpaceInvaders:
+    def __init__(self):
+        pyxel.init(160, 120)
+        pyxel.blt(50,50,0,0,0,32,88)
+        self.game_over = False
+        self.stars = [(random.randint(0, 159), random.randint(0, 119)) for _ in range(30)]
+        self.game_started = False
+        self.enemies = []
+        self.enemy_timer = 0
+        
+
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_Q):
+            self.game_over = True
+        if not self.game_started and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+            if 40 < pyxel.mouse_x < 110 and 60 < pyxel.mouse_y < 100:
+                self.game_started = True
+        if self.game_started:
+            self.enemy_timer += 1
+            if self.enemy_timer > 30:
+                self.enemies.append(Enemy(random.randint(0, 150), -10))
+                self.enemy_timer = 0
+            for enemy in self.enemies:
+                enemy.update()
+            
+
+    def draw(self):
+        pyxel.cls(0)
+        for star in self.stars:
+            pyxel.pset(star[0], star[1], 7)
+        if not self.game_started:
+            pyxel.text(55, 41, "Space Invaders!", pyxel.frame_count % 16)
+            pyxel.rect(60, 80, 100, 90, 0)
+            pyxel.text(75, 75, "PLAY", 7)
+            pyxel.line(pyxel.mouse_x, pyxel.mouse_y, pyxel.mouse_x + 5, pyxel.mouse_y + 9, 7)
+            pyxel.line(pyxel.mouse_x + 5, pyxel.mouse_y + 9, pyxel.mouse_x + 9, pyxel.mouse_y + 5, 7)
+            pyxel.line(pyxel.mouse_x + 9, pyxel.mouse_y + 5, pyxel.mouse_x + 3, pyxel.mouse_y + 1, 7)
+            pyxel.line(pyxel.mouse_x + 3, pyxel.mouse_y + 1, pyxel.mouse_x, pyxel.mouse_y, 7)
+        else:
+            for enemy in self.enemies:
+                enemy.draw()
+    
+    
+    def run(self):
+        pyxel.load("pyxies.pyxres")
+        pyxel.run(self.update, self.draw)
+
+if __name__ == '__main__':
+    game = SpaceInvaders()
+    game.run()
+
